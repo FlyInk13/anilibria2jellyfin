@@ -180,7 +180,7 @@ export class JellyFinAdapter {
       return  {
         "Protocol": "File",
         "Id": qualityKey,
-        "Path": "/media/" + mockID.toString() + '_' + qualityKey + ".m3u8",
+        "Path": "/media/" + mockID.toString() + ".m3u8",
         "Type": "Default",
         "Container": "m3u8",
         "Size": 47552616,
@@ -250,15 +250,15 @@ export class JellyFinAdapter {
 
     getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem) {
         return {
-            "Name": episode.name ?? episode.episode ?? '?',
-            "ServerId": "713dc3fe952b438fa70ed35e4ef0525a",
+            "Name": episode.name || episode.episode || '?',
+            "ServerId": this.serverId,
             "Id": contentID.toString(),
             "DateCreated": new Date(episode.created_timestamp).toISOString(),
             "CanDelete": false,
             "HasSubtitles": true,
             "Container": "mov,mp4,m4a,3gp,3g2,mj2",
             "PremiereDate": new Date(episode.created_timestamp).toISOString(),
-            "MediaSources": Object.keys(episode.hls).map((qualityKey: string) => {
+            "MediaSources": Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]).map((qualityKey: string) => {
               return this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality);
             }),
             "Path": "/media/TV Shows/Pioneer One (2010)/Season 01/Pioneer One (2010) - S01E01 - Earthfall/Pioneer One (2010) - S01E01 - Earthfall.mp4",
@@ -271,8 +271,8 @@ export class JellyFinAdapter {
             "CommunityRating": 7,
             //"RunTimeTicks": 3240349952,
             //"ProductionYear": 2010,
-            "IndexNumber": 1,
-            "ParentIndexNumber": 1,
+            "IndexNumber": contentID.episodeID,
+            "ParentIndexNumber": contentID.seasonID,
             "IsFolder": false,
             "ParentId": contentID.toString(2),
             "Type": "Episode",
