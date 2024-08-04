@@ -1,5 +1,14 @@
-import type { AnilibriaPlayerItem, AnilibriaPlayerQuality, AnilibriaTitle } from "./Anilibria";
+import { AnilibriaTitleStatusCode, type AnilibriaPlayerItem, type AnilibriaPlayerQuality, type AnilibriaTitle } from "./Anilibria";
 import { ContentID } from "./ContentID";
+import type { AuthenticationResult } from "@jellyfin/sdk/lib/generated-client/models/authentication-result";
+import type { UserDto } from "@jellyfin/sdk/lib/generated-client/models/user-dto";
+import type { SessionInfo } from "@jellyfin/sdk/lib/generated-client/models/session-info";
+import type { BaseItemDtoQueryResult } from "@jellyfin/sdk/lib/generated-client/models/base-item-dto-query-result";
+import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models/base-item-dto";
+import type { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
+import type { MediaStream } from "@jellyfin/sdk/lib/generated-client/models/media-stream";
+import type { SeriesInfo } from "@jellyfin/sdk/lib/generated-client/models/series-info";
+import type { SeriesStatus } from "@jellyfin/sdk/lib/generated-client/models/series-status";
 
 export class JellyFinAdapter {
     public userName = 'demo';
@@ -7,7 +16,7 @@ export class JellyFinAdapter {
     public serverId = '713dc3fe952b438fa70ed35e4ef0525a';
     public accessToken = 'eacd06e811c14d789bc051b8a21fc046'
 
-    getAuthenticationResult() {
+    getAuthenticationResult(): AuthenticationResult {
         return {
             "User": this.getUserDto(),
             "SessionInfo": this.getSessionInfo(),
@@ -16,7 +25,7 @@ export class JellyFinAdapter {
         };
     }
 
-    getUserDto() {
+    getUserDto(): UserDto {
         return {
             "Name": this.userName,
             "ServerId": this.serverId,
@@ -87,7 +96,7 @@ export class JellyFinAdapter {
         };
     }
 
-    getSessionInfo() {
+    getSessionInfo(): SessionInfo {
         return {
             "PlayState": {
               "CanSeek": false,
@@ -130,7 +139,7 @@ export class JellyFinAdapter {
         return [];
     }
 
-    getEmptyList() {
+    getEmptyList(): BaseItemDtoQueryResult {
         return {
             "Items": [],
             "TotalRecordCount": 0,
@@ -138,45 +147,9 @@ export class JellyFinAdapter {
         };
     }
 
-    getSeason(mockID: ContentID, name: string) {
-        return {
-            "Name": name,
-            "ServerId": this.serverId,
-            "Id": mockID.toString(),
-            "CanDelete": false,
-            "PremiereDate": "2010-06-16T00:00:00.0000000Z",
-            "ChannelId": null,
-            "ProductionYear": 2010,
-            "IndexNumber": 1,
-            "IsFolder": true,
-            "Type": "Season",
-            "ParentBackdropItemId": "ParentBackdropItemId",
-            "ParentBackdropImageTags": [
-              "ParentBackdropImageTags"
-            ],
-            "UserData": {
-              "UnplayedItemCount": 1,
-              "PlaybackPositionTicks": 0,
-              "PlayCount": 0,
-              "IsFavorite": false,
-              "Played": false,
-              "Key": "170551001"
-            },
-            "ChildCount": 2,
-            "SeriesName": name,
-            "SeriesId": mockID.toString(),
-            "PrimaryImageAspectRatio": 1,
-            "SeriesPrimaryImageTag": mockID.toString(),
-            "ImageTags": {
-              "Primary": mockID.toString(),
-            },
-            "BackdropImageTags": [],
-            "LocationType": "FileSystem",
-            "MediaType": "Unknown"
-          }
-    }
 
-    getMediaSource(mockID: ContentID, episode: AnilibriaPlayerItem, qualityKey: AnilibriaPlayerQuality) {
+
+    getMediaSource(mockID: ContentID, episode: AnilibriaPlayerItem, qualityKey: AnilibriaPlayerQuality): MediaSourceInfo {
       return  {
         "Protocol": "File",
         "Id": qualityKey,
@@ -184,7 +157,7 @@ export class JellyFinAdapter {
         "Type": "Default",
         "Container": "m3u8",
         "Size": 47552616,
-        "Name": episode.name + ' ' + qualityKey,
+        "Name": qualityKey,
         "IsRemote": false,
         "ETag": "f2c9f12aa39e9312fe369824d371a64f",
         "RunTimeTicks": 3240349952,
@@ -201,7 +174,7 @@ export class JellyFinAdapter {
         "RequiresLooping": false,
         "SupportsProbing": true,
         "VideoType": "VideoFile",
-        "MediaStreams": this.getMediaStreams(mockID, episode),
+        "MediaStreams": [this.getMediaStreams(mockID, episode)],
         "MediaAttachments": [],
         "Formats": [],
         "Bitrate": 1174011,
@@ -212,7 +185,7 @@ export class JellyFinAdapter {
       }
     }
 
-    getMediaStreams(mockID: ContentID, episode: AnilibriaPlayerItem) {
+    getMediaStreams(mockID: ContentID, episode: AnilibriaPlayerItem): MediaStream {
         return {
           "Codec": "h264",
           "CodecTag": "avc1",
@@ -248,89 +221,32 @@ export class JellyFinAdapter {
         };
     }
 
-    getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem) {
-        return {
-            "Name": episode.name || episode.episode || '?',
-            "ServerId": this.serverId,
-            "Id": contentID.toString(),
-            "DateCreated": new Date(episode.created_timestamp).toISOString(),
-            "CanDelete": false,
-            "HasSubtitles": true,
-            "Container": "mov,mp4,m4a,3gp,3g2,mj2",
-            "PremiereDate": new Date(episode.created_timestamp).toISOString(),
-            "MediaSources": Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]).map((qualityKey: string) => {
-              return this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality);
-            }),
-            "Path": "/media/TV Shows/Pioneer One (2010)/Season 01/Pioneer One (2010) - S01E01 - Earthfall/Pioneer One (2010) - S01E01 - Earthfall.mp4",
-            "ChannelId": null,
-            // "Overview": "An object from space spreads radiation over North America. Fearing terrorism, U.S. Homeland Security agents are dispatched to investigate and contain the damage. What they discover is a forgotten relic of the old Soviet space program, whose return to Earth will have implications for the entire world.",
-            // "Genres": [
-            //   "Drama",
-            //   "Sci-Fi"
-            // ],
-            "CommunityRating": 7,
-            //"RunTimeTicks": 3240349952,
-            //"ProductionYear": 2010,
-            "IndexNumber": contentID.episodeID,
-            "ParentIndexNumber": contentID.seasonID,
-            "IsFolder": false,
-            "ParentId": contentID.toString(2),
-            "Type": "Episode",
-            "People": [],
-            "GenreItems": [],
-            "ParentBackdropItemId": contentID.toString(),
-            "ParentBackdropImageTags": [
-              contentID.toString()
-            ],
-            // "UserData": {
-            //   "PlayedPercentage": 36.63199832065546,
-            //   "PlaybackPositionTicks": 1187004940,
-            //   "PlayCount": 18,
-            //   "IsFavorite": true,
-            //   "LastPlayedDate": "2024-04-20T18:15:27.1362519Z",
-            //   "Played": false,
-            //   "Key": "170551001001"
-            // },
-            "SeriesName": title.names.ru,
-            "SeriesId": contentID.toString(1),
-            "SeasonId": contentID.toString(2),
-            "PrimaryImageAspectRatio": 1.7777777777777777,
-            "SeriesPrimaryImageTag": contentID.toString(),
-            "SeasonName": "Season 1",
-            "MediaStreams": this.getMediaStreams(contentID, episode),
-            "VideoType": "VideoFile",
-            "ImageTags": {
-              "Primary": contentID.toString()
-            },
-            "BackdropImageTags": [],
-            "LocationType": "FileSystem",
-            "MediaType": "Video"
-        };
-    }
 
-    getSerial(mockID: ContentID, name: string) {
+
+    getSerial(mockID: ContentID, title: AnilibriaTitle): BaseItemDto & SeriesInfo {
         return {
-            "Name": name,
+            "Name": title.names.ru,
             "ServerId": this.serverId,
             "Id": mockID.toString(),
+            "Overview": title.description,
             "CanDelete": false,
-            "PremiereDate": "2010-06-16T00:00:00.0000000Z",
-            "OfficialRating": "NR",
+            "PremiereDate": new Date(title.updated).toISOString(),
+            // "OfficialRating": "NR",
             "ChannelId": null,
-            "CommunityRating": 6.9,
-            "RunTimeTicks": 17999998976,
-            "ProductionYear": 2010,
+            //"CommunityRating": 6.9,
+            // "RunTimeTicks": 17999998976,
+            "ProductionYear": title.year,
             "IsFolder": true,
             "Type": "Series",
-            "UserData": {
-              "UnplayedItemCount": 1,
-              "PlaybackPositionTicks": 0,
-              "PlayCount": 0,
-              "IsFavorite": false,
-              "Played": false,
-              "Key": "170551"
-            },
-            "Status": "Ended",
+            // "UserData": {
+            //   "UnplayedItemCount": 1,
+            //   "PlaybackPositionTicks": 0,
+            //   "PlayCount": 0,
+            //   "IsFavorite": false,
+            //   "Played": false,
+            //   "Key": "170551"
+            // },
+            "Status": title.status.code === AnilibriaTitleStatusCode.IN_PROGRESS ? 'Continuing' : 'Ended',
             "AirDays": [],
             "PrimaryImageAspectRatio": 0.68,
             "ImageTags": {
@@ -338,9 +254,107 @@ export class JellyFinAdapter {
             },
             "LocationType": "FileSystem",
             "MediaType": "Unknown",
-            "EndDate": "2011-12-13T00:00:00.0000000Z"
+            // "EndDate": "2011-12-13T00:00:00.0000000Z"
         };      
     }
+
+    getSeason(mockID: ContentID, name: string): BaseItemDto {
+      return {
+          "Name": name,
+          "ServerId": this.serverId,
+          "Id": mockID.toString(),
+          "CanDelete": false,
+          "PremiereDate": "2010-06-16T00:00:00.0000000Z",
+          "ChannelId": null,
+          "ProductionYear": 2010,
+          "IndexNumber": 1,
+          "IsFolder": true,
+          "Type": "Season",
+          "ParentBackdropItemId": "ParentBackdropItemId",
+          "ParentBackdropImageTags": [
+            "ParentBackdropImageTags"
+          ],
+          "UserData": {
+            "UnplayedItemCount": 1,
+            "PlaybackPositionTicks": 0,
+            "PlayCount": 0,
+            "IsFavorite": false,
+            "Played": false,
+            "Key": "170551001"
+          },
+          "ChildCount": 2,
+          "SeriesName": name,
+          "SeriesId": mockID.toString(),
+          "PrimaryImageAspectRatio": 1,
+          "SeriesPrimaryImageTag": mockID.toString(),
+          "ImageTags": {
+            "Primary": mockID.toString(),
+          },
+          "BackdropImageTags": [],
+          "LocationType": "FileSystem",
+          "MediaType": "Unknown"
+        }
+  }
+
+  getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem): BaseItemDto {
+    return {
+        "Name":  String(episode.name || ('Эпизод ' + episode.episode) || '?'),
+        "ServerId": this.serverId,
+        "Id": contentID.toString(),
+        "DateCreated": new Date(episode.created_timestamp).toISOString(),
+        "CanDelete": false,
+        "HasSubtitles": true,
+        "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "PremiereDate": new Date(episode.created_timestamp).toISOString(),
+        "MediaSources": Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]).map((qualityKey: string) => {
+          return this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality);
+        }),
+        "Path": "/media/" + contentID.toString() + "",
+        "ChannelId": null,
+        // "Overview": "An object from space spreads radiation over North America. Fearing terrorism, U.S. Homeland Security agents are dispatched to investigate and contain the damage. What they discover is a forgotten relic of the old Soviet space program, whose return to Earth will have implications for the entire world.",
+        // "Genres": [
+        //   "Drama",
+        //   "Sci-Fi"
+        // ],
+        "CommunityRating": 7,
+        //"RunTimeTicks": 3240349952,
+        //"ProductionYear": 2010,
+        "IndexNumber": Number(contentID.episodeID),
+        "ParentIndexNumber": Number(contentID.seasonID),
+        "IsFolder": false,
+        "ParentId": contentID.toString(2),
+        "Type": "Episode",
+        "People": [],
+        "GenreItems": [],
+        "ParentBackdropItemId": contentID.toString(),
+        "ParentBackdropImageTags": [
+          contentID.toString()
+        ],
+        // "UserData": {
+        //   "PlayedPercentage": 36.63199832065546,
+        //   "PlaybackPositionTicks": 1187004940,
+        //   "PlayCount": 18,
+        //   "IsFavorite": true,
+        //   "LastPlayedDate": "2024-04-20T18:15:27.1362519Z",
+        //   "Played": false,
+        //   "Key": "170551001001"
+        // },
+        "SeriesName": title.names.ru,
+        "SeriesId": contentID.toString(1),
+        "SeasonId": contentID.toString(2),
+        "PrimaryImageAspectRatio": 1.7777777777777777,
+        "SeriesPrimaryImageTag": contentID.toString(),
+        "SeasonName": "Season 1",
+        "MediaStreams": [this.getMediaStreams(contentID, episode)],
+        "VideoType": "VideoFile",
+        "ImageTags": {
+          "Primary": contentID.toString()
+        },
+        "BackdropImageTags": [],
+        "LocationType": "FileSystem",
+        "MediaType": "Video"
+    };
+}
 
     getList<I, R>(list: I[], itemBuilder: (item: I) => R) {
       return {
@@ -350,7 +364,7 @@ export class JellyFinAdapter {
       }
     }
 
-    getCollectionFolder(folderId: ContentID, name: string) {
+    getCollectionFolder(folderId: ContentID, name: string): BaseItemDto {
         return {
             "Name": name,
             "ServerId": "713dc3fe952b438fa70ed35e4ef0525a",
@@ -400,7 +414,7 @@ export class JellyFinAdapter {
         };
     }
 
-    getRoot() {
+    getRoot(): BaseItemDtoQueryResult {
         return {
             "Items": [
                 this.getCollectionFolder(ContentID.root(), 'Обновления')

@@ -30,7 +30,7 @@ app.get('/stable/Users/:userId/Items', (req, res, next) => {
         return anilibriaApi.titleSearch(String(req.query.SearchTerm)).then(({ list }) => {
             res.json(jellyFinAdapter.getList(list, (title: AnilibriaTitle) => {
                 const contentID = ContentID.parse(title.id.toString());
-                return jellyFinAdapter.getSerial(contentID, title.names.ru)
+                return jellyFinAdapter.getSerial(contentID, title)
             }));
         });
     }
@@ -40,12 +40,12 @@ app.get('/stable/Users/:userId/Items', (req, res, next) => {
         return anilibriaApi.titleUpdates().then(({ list }) => {
             res.json(jellyFinAdapter.getList(list, (title: AnilibriaTitle) => {
                 const contentID = ContentID.parse(title.id.toString());
-                return jellyFinAdapter.getSerial(contentID, title.names.ru)
+                return jellyFinAdapter.getSerial(contentID, title)
             }));
         });
     }
 
-    next();
+    return jellyFinAdapter.getEmptyList();
 });
 
 app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {    
@@ -56,14 +56,16 @@ app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
             const episode = title.player.list[contentID.episodeID!];            
             res.json(jellyFinAdapter.getEpisode(contentID, title, episode));
         });
-    } else if (contentID.serialID && /^\d+$/.test(contentID.serialID)) {
+    } 
+    
+    if (contentID.serialID && /^\d+$/.test(contentID.serialID)) {
         return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
             const mockID = ContentID.parse(title.id.toString());
-            res.json(jellyFinAdapter.getSerial(mockID, title.names.ru));
+            res.json(jellyFinAdapter.getSerial(mockID, title));
         });
     }
 
-    next();
+    res.status(404).json({});
 });
 
 app.post('/stable/Items/:itemId/PlaybackInfo', (req, res, next) => {    
@@ -79,7 +81,7 @@ app.post('/stable/Items/:itemId/PlaybackInfo', (req, res, next) => {
         });
     }
 
-    next();
+    res.status(404).json({});
 });
 
 
@@ -88,10 +90,19 @@ app.get('/stable/Shows/:itemId/Seasons', (req, res, next) => {
 
     if (contentID.serialID) {
         return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
-            const keys = Object.keys(title.player.list);
-            res.json(jellyFinAdapter.getList(keys, (key: string) => {
-                const episodeID = new ContentID(title.id.toString(), key, undefined);
-                return jellyFinAdapter.getSeason(episodeID, key);
+            const releaseMap = title.franchises.reduce<Record<string, string>>((res, franchise) => {
+                return franchise.releases.reduce<Record<string, string>>((res, release) => {
+                    res[release.id.toString()] = release.names.ru;
+                    return res;
+                }, res)
+            }, {});
+
+            const releaseList = Object.entries(releaseMap).filter(x => x[0] !== contentID.serialID);
+            releaseList.unshift([title.id.toString(), title.names.ru]);
+
+            res.json(jellyFinAdapter.getList(releaseList, ([id, name]: [string, string]) => {
+                const seasonID = new ContentID(id, '1', undefined);
+                return jellyFinAdapter.getSeason(seasonID, name);
             }));
         });
     }
@@ -113,7 +124,7 @@ app.get('/stable/Shows/:itemId/Episodes', (req, res, next) => {
         });
     }
 
-    next();
+    res.json(jellyFinAdapter.getEmptyList());
 });
 
 // Get stream content
