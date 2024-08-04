@@ -26,6 +26,11 @@ app.get('/stable/Users/:userId/Views', (req, res) => {
 
 // Get title by search or ID
 app.get('/stable/Users/:userId/Items', (req, res, next) => {
+
+    if (req.query.NameStartsWith) {
+        return jellyFinAdapter.getEmptyList();
+    }
+
     if (req.query.SearchTerm) {
         return anilibriaApi.titleSearch(String(req.query.SearchTerm)).then(({ list }) => {
             res.json(jellyFinAdapter.getList(list, (title: AnilibriaTitle) => {
