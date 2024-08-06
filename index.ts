@@ -119,7 +119,7 @@ app.get('/stable/Shows/:itemId/Episodes', (req, res, next) => {
         return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
             const items = Object.entries(title.player.list);
             res.json(jellyFinAdapter.getList(items, ([itemId, episode]: [string, AnilibriaPlayerItem]) => {
-                const episodeID = new ContentID(title.id.toString(), itemId, episode.episode.toString());                    
+                const episodeID = new ContentID(title.id.toString(), '1', episode.episode.toString());
                 return jellyFinAdapter.getEpisode(episodeID, title, episode)
             }));
         });
