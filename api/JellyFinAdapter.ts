@@ -149,43 +149,14 @@ export class JellyFinAdapter {
 
 
 
-    getMediaSource(mockID: ContentID, episode: AnilibriaPlayerItem, qualityKey: AnilibriaPlayerQuality, proxy: boolean): MediaSourceInfo {
+    getMediaSource(id: string, path: string, name: string): MediaSourceInfo {
       return  {
-        "Protocol": "File",
-        "Id": qualityKey + '@' + (proxy ? 'proxy' : 'anilibria'),
-        "Path": "/media/" + mockID.toString() + ".m3u8",
-        "Type": "Default",
-        "Container": "m3u8",
-        "Size": 47552616,
-        "Name": qualityKey + ' (' + (proxy ? 'proxy' : 'anilibria') + ')',
-        "IsRemote": false,
-        "ETag": "f2c9f12aa39e9312fe369824d371a64f",
-        "RunTimeTicks": 3240349952,
-        "ReadAtNativeFramerate": false,
-        "IgnoreDts": false,
-        "IgnoreIndex": false,
-        "GenPtsInput": false,
-        "SupportsTranscoding": true,
-        "SupportsDirectStream": true,
-        "SupportsDirectPlay": true,
-        "IsInfiniteStream": false,
-        "RequiresOpening": false,
-        "RequiresClosing": false,
-        "RequiresLooping": false,
-        "SupportsProbing": true,
-        "VideoType": "VideoFile",
-        "MediaStreams": [this.getMediaStreams(mockID, episode)],
-        "MediaAttachments": [],
-        "Formats": [],
-        "Bitrate": 1174011,
-        "RequiredHttpHeaders": {},
-        "TranscodingSubProtocol": "http",
-        "DefaultAudioStreamIndex": 1,
-        "DefaultSubtitleStreamIndex": 3
+        "Protocol": "Http",
+        "Id": id,
       }
     }
 
-    getMediaStreams(mockID: ContentID, episode: AnilibriaPlayerItem): MediaStream {
+    getMediaStreams(): MediaStream {
         return {
           "Codec": "h264",
           "CodecTag": "avc1",
@@ -307,20 +278,18 @@ export class JellyFinAdapter {
         }
   }
 
-  getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem): BaseItemDto {
-    const sources = Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]);
+  getEpisode(contentID: ContentID, name: string, path: string, created_timestamp: number): BaseItemDto {
     return {
-        "Name":  String(episode.name || ('Эпизод ' + episode.episode) || '?'),
+        "Name":  name,
         "ServerId": this.serverId,
         "Id": contentID.toString(),
-        "DateCreated": new Date(episode.created_timestamp).toISOString(),
+        "DateCreated": new Date(created_timestamp).toISOString(),
         "CanDelete": false,
         "HasSubtitles": true,
         "Container": "mov,mp4,m4a,3gp,3g2,mj2",
-        "PremiereDate": new Date(episode.created_timestamp).toISOString(),
+        "PremiereDate": new Date(created_timestamp).toISOString(),
         "MediaSources": [
-          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
-          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, false))
+          this.getMediaSource(contentID.toString(), path, name)
         ],
         "Path": "/media/" + contentID.toString() + "",
         "ChannelId": null,
@@ -336,13 +305,13 @@ export class JellyFinAdapter {
         "ParentBackdropImageTags": [
           contentID.toString()
         ],
-        "SeriesName": title.names.ru,
+        "SeriesName": name,
         "SeriesId": contentID.toString(1),
         "SeasonId": contentID.toString(2),
         "PrimaryImageAspectRatio": 1.7777777777777777,
         "SeriesPrimaryImageTag": contentID.toString(),
         "SeasonName": "Season 1",
-        "MediaStreams": [this.getMediaStreams(contentID, episode)],
+        //"MediaStreams": [this.getMediaStreams()],
         "VideoType": "VideoFile",
         "ImageTags": {
           "Primary": contentID.toString()

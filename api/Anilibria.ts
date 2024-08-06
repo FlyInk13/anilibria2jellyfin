@@ -1,5 +1,6 @@
 import https from "node:https";
 import type { ContentID } from "./ContentID";
+import torrentStream from "torrent-stream";
 
 // https://github.com/anilibria/docs/blob/master/api_v3.md#-franchiselist
 
@@ -52,6 +53,33 @@ export type AnilibriaFranchise = {
   "releases": AnilibriaRelease[],
 }
 
+export type AnilibriaTorrent = {
+  "torrent_id": number,
+  "episodes": {
+    "first": number,
+    "last": number,
+    "string": string
+  },
+  "quality": {
+    "string": string,
+    "type": string,
+    "resolution": string,
+    "encoder": string,
+    "lq_audio": null
+  },
+  "leechers": number,
+  "seeders": number,
+  "downloads": number,
+  "total_size": number,
+  "size_string": string,
+  "url": string,
+  "magnet": string,
+  "uploaded_timestamp": number,
+  "hash": string,
+  "metadata": null,
+  "raw_base64_file": null
+}
+
 export type AnilibriaTitle = {
   year: number | null | undefined;
   id: number,
@@ -74,6 +102,14 @@ export type AnilibriaTitle = {
   player: {
       host: string,
       list: Record<string, AnilibriaPlayerItem>
+  },
+  torrents: {
+    "episodes": {
+      "first": number,
+      "last": number,
+      "string": string,
+    },
+    "list": AnilibriaTorrent[]
   }
 }
 
@@ -152,6 +188,15 @@ export class Anilibria {
       }
 
       return r;
+    });
+  }
+
+  getTorrent(link: string): Promise<TorrentStream.TorrentEngine> {
+    return new Promise((resolve, reject) => {
+      const engine = torrentStream(link);
+      engine.on('ready', () => {
+        resolve(engine);
+      });
     });
   }
 }

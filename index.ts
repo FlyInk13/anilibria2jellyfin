@@ -4,6 +4,7 @@ import { JellyFinAdapter } from './api/JellyFinAdapter';
 import { ContentID } from './api/ContentID';
 import { Anilibria, type AnilibriaPlayerItem, type AnilibriaPlayerQuality, type AnilibriaTitle } from './api/Anilibria';
 import { proxy } from './lib/proxy';
+import { md5 } from './lib/md5';
 
 const app = express();
 const jellyFinAdapter = new JellyFinAdapter();
@@ -53,9 +54,13 @@ app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID && contentID.episodeID) {
-        return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
-            const episode = title.player.list[contentID.episodeID!];            
-            res.json(jellyFinAdapter.getEpisode(contentID, title, episode));
+        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
+            const torrentInfo = title.torrents.list.find(torrent => torrent.torrent_id.toString() === contentID.seasonID)!;
+            const torrentEngine = await anilibriaApi.getTorrent(torrentInfo.magnet);
+            const file = torrentEngine.files.find(file => md5(file.name) === contentID.episodeID)!;
+            const episodeID = new ContentID(title.id.toString(), torrentInfo.torrent_id.toString(), md5(file.name));
+            const episode = jellyFinAdapter.getEpisode(episodeID, file.name, file.path, Date.now()); // todo fix date
+            res.json(episode);
         });
     }
     
@@ -73,10 +78,15 @@ app.use('/stable/Items/:itemId/PlaybackInfo', (req, res, next) => {
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID && contentID.episodeID) {
-        return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
-            const episode = title.player.list[contentID.episodeID!];            
+        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
+            const torrentInfo = title.torrents.list.find(torrent => torrent.torrent_id.toString() === contentID.seasonID)!;
+            const torrentEngine = await anilibriaApi.getTorrent(torrentInfo.magnet);
+            const file = torrentEngine.files.find(file => md5(file.name) === contentID.episodeID)!;
+            const episodeID = new ContentID(title.id.toString(), torrentInfo.torrent_id.toString(), md5(file.name));
+            const episode = jellyFinAdapter.getEpisode(episodeID, file.name, file.path, Date.now()); // todo fix date
+
             res.json({ 
-                "MediaSources": jellyFinAdapter.getEpisode(contentID, title, episode).MediaSources,
+                "MediaSources": episode.MediaSources,
                 "PlaySessionId": contentID.toString(),
             });
         });
@@ -90,19 +100,15 @@ app.get('/stable/Shows/:itemId/Seasons', (req, res, next) => {
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID) {
-        return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
-            const releaseMap = title.franchises.reduce<Record<string, string>>((res, franchise) => {
-                return franchise.releases.reduce<Record<string, string>>((res, release) => {
-                    res[release.id.toString()] = release.names.ru;
-                    return res;
-                }, res)
-            }, {});
-
-            const releaseList = Object.entries(releaseMap).filter(x => x[0] !== contentID.serialID);
-            releaseList.unshift([title.id.toString(), title.names.ru]);
+        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
+            const releaseList = title.torrents.list.map<[string, string]>((torrent) => {
+                const id = torrent.torrent_id.toString();
+                const name = torrent.episodes.string + ' ' +  torrent.quality.string;
+                return [id, name];
+            });
 
             res.json(jellyFinAdapter.getList(releaseList, ([id, name]: [string, string]) => {
-                const seasonID = new ContentID(id, '1', undefined);
+                const seasonID = new ContentID(contentID.serialID, id, undefined);
                 return jellyFinAdapter.getSeason(seasonID, name);
             }));
         });
@@ -116,11 +122,13 @@ app.get('/stable/Shows/:itemId/Episodes', (req, res, next) => {
     const contentID: ContentID = ContentID.parse(req.query.SeasonId?.toString() ?? '');
 
     if (contentID.serialID) {
-        return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
-            const items = Object.entries(title.player.list);
-            res.json(jellyFinAdapter.getList(items, ([itemId, episode]: [string, AnilibriaPlayerItem]) => {
-                const episodeID = new ContentID(title.id.toString(), '1', episode.episode.toString());
-                return jellyFinAdapter.getEpisode(episodeID, title, episode)
+        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
+            const torrentInfo = title.torrents.list.find(torrent => torrent.torrent_id.toString() === contentID.seasonID)!;
+            const torrentEngine = await anilibriaApi.getTorrent(torrentInfo.magnet);
+
+            res.json(jellyFinAdapter.getList(torrentEngine.files, (file: TorrentStream.TorrentFile) => {
+                const episodeID = new ContentID(title.id.toString(), torrentInfo.torrent_id.toString(), md5(file.name));
+                return jellyFinAdapter.getEpisode(episodeID, file.name, file.path, Date.now()); // todo fix date
             }));
         });
     }
@@ -138,57 +146,76 @@ const redirectM3U8 = (origin: string, playlist: string): string => {
 
 // infuse
 app.get('/stable/Videos/:itemId/stream', (req, res) => {
-    const [qualityRaw, playlistType] = String(req.query.MediaSourceId ?? '').split('@');
-    const qualityKey = qualityRaw as AnilibriaPlayerQuality; 
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID && contentID.episodeID) {
         return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
-            const episode = title.player.list[contentID.episodeID!];            
-            const url = 'https://' + title.player.host + episode.hls[qualityKey];
-
-            const urlRes = await fetch(url);
-            const arrayBuffer = await urlRes.arrayBuffer();
-            const origin = 'http://' + req.get('host')!;
-            const decoder = new TextDecoder();
-            let playlist = decoder.decode(arrayBuffer);
+            const torrentInfo = title.torrents.list.find(torrent => torrent.torrent_id.toString() === contentID.seasonID)!;
+            const torrentEngine = await anilibriaApi.getTorrent(torrentInfo.magnet);
+            const file = torrentEngine.files.find(file => md5(file.name) === contentID.episodeID)!;
+            console.log(torrentInfo);
+            console.log(req.headers);
             
-            if (playlistType === 'proxy') {
-                playlist = redirectM3U8(origin, playlist);
-            }
+            res.status(200);
 
-            res.send(playlist);
-            res.end();
+            let startByte = undefined;
+            let endByte = undefined;
+            const rangeHeader = req.get('range');
+            console.log(rangeHeader);
+            
+            if (rangeHeader) {
+              const range = rangeHeader.split('=')[1];
+              const bytes = range.split('-');
+              if (Number(bytes[0])) startByte = Number(bytes[0]);
+              if (Number(bytes[1])) endByte = Number(bytes[1]);
+            }
+          
+            if (!startByte) startByte = 0;
+            if (!endByte) endByte = file.length; // Math.min(startByte + 10e3, file.length);
+        
+        
+            console.log('filename:', file.name, file.length);
+            console.log('range:', startByte, endByte);
+        
+            res.setHeader('Content-Length', endByte - startByte);
+            console.log('Content-Length', endByte - startByte);
+        
+            res.setHeader('Content-Range', 'bytes ' + startByte + '-' + (endByte - 1) + '/' + file.length);
+            console.log('Content-Range', 'bytes ' + startByte + '-' + (endByte - 1) + '/' + file.length);
+        
+            res.setHeader('Content-Type', 'video/x-matroska');
+            // res.setHeader('Content-Disposition', 'attachment; filename="' + file.name + '"');
+        
+            const stream = file.createReadStream({
+              start: startByte,
+              end: endByte - 1
+            });
+            
+            stream.on('data', (x: any) => {
+              console.log('write', x.length);
+              res.write(x);
+            });
+        
+            stream.on('end', (x: any) => {
+              console.log('end');
+              res.end()
+            });
+            stream.on('error', (x: any) => {
+              console.log('error', x);
+              res.end()
+            });
+        
+            req.on('close', () => {
+              console.log('connection closed');
+              if (file) file.deselect();
+              torrentEngine.destroy(() => {
+                console.log('torrent removed');
+              });
+            });
         });
     }
 });
 
-// vidhub
-app.get('/stable/videos/:itemId/stream.m3u8', (req, res) => {
-    const [qualityRaw, playlistType] = String(req.query.MediaSourceId ?? '').split('@');
-    const qualityKey = qualityRaw as AnilibriaPlayerQuality; 
-    const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
-
-    if (contentID.serialID && contentID.episodeID) {
-        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
-            const episode = title.player.list[contentID.episodeID!];            
-            const url = 'https://' + title.player.host + episode.hls[qualityKey];
-
-            const urlRes = await fetch(url);
-            const arrayBuffer = await urlRes.arrayBuffer();
-            const origin = 'http://' + req.get('host')!;
-            const decoder = new TextDecoder();
-            let playlist = decoder.decode(arrayBuffer);
-            
-            if (playlistType === 'proxy') {
-                playlist = redirectM3U8(origin, playlist);
-            }
-
-            res.send(playlist);
-            res.end();
-        });
-    }
-});
 
 app.get('/content/:protocol/:host/:type', async (req, res, next) => {
     const protocol: string = req.params.protocol;
