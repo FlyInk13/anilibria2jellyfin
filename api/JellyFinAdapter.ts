@@ -319,7 +319,7 @@ export class JellyFinAdapter {
         "Container": "mov,mp4,m4a,3gp,3g2,mj2",
         "PremiereDate": new Date(episode.created_timestamp).toISOString(),
         "MediaSources": [
-           ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
+          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
           ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, false))
         ],
         "Path": "/media/" + contentID.toString() + "",

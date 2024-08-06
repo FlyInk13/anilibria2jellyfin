@@ -12,7 +12,7 @@ const anilibriaApi = new Anilibria('api.anilibria.tv');
 // Log api and content requests
 app.use((req, res, next) => {
     const pathname = url.parse(req.url).pathname ?? '';
-    if (!/Images\/Primary/.test(pathname)) {
+    if (!/(Images\/Primary)|content/.test(pathname)) {
         console.log('req', req.method, pathname, req.query);
     }
 
@@ -198,8 +198,10 @@ app.get('/content/:protocol/:host/:type', async (req, res, next) => {
     const url = protocol + '://' + host + '/' + path + '.' + type;
 
     if (type === 'ts') {
-        proxy(req.method, host, path + '.' + type, res);
-        return;
+        const urlRes = await fetch(url);
+        console.log(url, urlRes.url, urlRes.status, urlRes.headers);
+        const arrayBuffer = await urlRes.arrayBuffer();
+        return res.send(Buffer.from(arrayBuffer));
     } else if (type === 'm3u8') {
         const urlRes = await fetch(url);
         const arrayBuffer = await urlRes.arrayBuffer();

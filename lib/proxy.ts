@@ -1,17 +1,19 @@
 import https from 'node:https';
 
-export const proxy = (method: string, hostname: string, path: string, res: any) => {
+export const proxy = (method: string, hostname: string, path: string, res: any, headers: any = {}) => {
+    delete headers.host;    
+    
     const proxyRequest = https.request({
         hostname: hostname,
         method: method,
         path: path,
-        rejectUnauthorized: false
+        headers: headers,
     });
 
     proxyRequest.on('response', (proxyResponse) => {
         res.status(proxyResponse.statusCode);
 
-        Object.entries(proxyResponse.headers).forEach(([key, value]) => {
+        Object.entries(proxyResponse.headers).forEach(([key, value]) => {                        
             res.setHeader(key, value);
         });
 
