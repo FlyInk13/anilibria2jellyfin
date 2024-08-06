@@ -46,7 +46,7 @@ app.get('/stable/Users/:userId/Items', (req, res, next) => {
         });
     }
 
-    return jellyFinAdapter.getEmptyList();
+    return res.json(jellyFinAdapter.getEmptyList());
 });
 
 app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
@@ -66,7 +66,7 @@ app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
         });
     }
 
-    res.status(404).json({});
+    return res.json(jellyFinAdapter.getEmptyList());
 });
 
 app.use('/stable/Items/:itemId/PlaybackInfo', (req, res, next) => {    
