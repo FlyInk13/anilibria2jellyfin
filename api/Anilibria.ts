@@ -94,7 +94,7 @@ export class Anilibria {
   }
 
   titleUpdates(): Promise<AnilibriaList<AnilibriaTitle>> {
-    return this.api('/v3/title/updates?limit=20');
+    return this.api('/v3/title/updates?limit=10');
   }
 
   titleSearch(q: string): Promise<AnilibriaList<AnilibriaTitle>> {
@@ -145,6 +145,13 @@ export class Anilibria {
       }
 
       throw e;
+    }).then((r) => {
+      if (r && r.error) {
+        console.error(path, r);
+        throw r;
+      }
+
+      return r;
     });
   }
 }

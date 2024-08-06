@@ -69,7 +69,7 @@ app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
     res.status(404).json({});
 });
 
-app.post('/stable/Items/:itemId/PlaybackInfo', (req, res, next) => {    
+app.use('/stable/Items/:itemId/PlaybackInfo', (req, res, next) => {    
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID && contentID.episodeID) {
@@ -115,7 +115,7 @@ app.get('/stable/Shows/:itemId/Seasons', (req, res, next) => {
 app.get('/stable/Shows/:itemId/Episodes', (req, res, next) => {
     const contentID: ContentID = ContentID.parse(req.query.SeasonId?.toString() ?? '');
 
-    if (contentID.serialID && contentID.seasonID) {
+    if (contentID.serialID) {
         return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
             const items = Object.entries(title.player.list);
             res.json(jellyFinAdapter.getList(items, ([itemId, episode]: [string, AnilibriaPlayerItem]) => {
@@ -229,6 +229,14 @@ app.get('/stable/Packages', (req, res) => {
 
 app.get('/stable/DisplayPreferences/usersettings', (req, res) => {
     res.json(jellyFinAdapter.getDisplayPreferencesDto());
+});
+
+app.get('/stable/Users/:userId/GroupingOptions', (req, res) => {
+    res.json(jellyFinAdapter.getEmptyArray());
+});
+
+app.get('/stable/Persons', (req, res) => {
+    res.json(jellyFinAdapter.getEmptyList());
 });
 
 app.get('/stable/Library/VirtualFolders', (req, res) => {
