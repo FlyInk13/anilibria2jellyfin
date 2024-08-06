@@ -198,10 +198,8 @@ app.get('/content/:protocol/:host/:type', async (req, res, next) => {
     const url = protocol + '://' + host + '/' + path + '.' + type;
 
     if (type === 'ts') {
-        const urlRes = await fetch(url);
-        const arrayBuffer = await urlRes.arrayBuffer();
-        const nodeBuffer = Buffer.from(arrayBuffer);
-        return res.send(nodeBuffer);
+        proxy(req.method, host, path + '.' + type, res);
+        return;
     } else if (type === 'm3u8') {
         const urlRes = await fetch(url);
         const arrayBuffer = await urlRes.arrayBuffer();
