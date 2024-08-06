@@ -226,26 +226,28 @@ export class JellyFinAdapter {
     getSerial(mockID: ContentID, title: AnilibriaTitle): BaseItemDto & SeriesInfo {
         return {
             "Name": title.names.ru,
+            "SortName": title.names.ru,
             "ServerId": this.serverId,
             "Id": mockID.toString(),
-            "Overview": title.description,
+            "Etag": mockID.toString(),
+            "ParentId": '---',
+            "RecursiveItemCount": 0,
+            "ChildCount": 0,
+            "Genres": [],
+            "MediaSources": [],
+            "People": [],
+            "Overview": title.description ?? "",
+            "ProviderIds": {},
             "CanDelete": false,
             "PremiereDate": new Date(title.updated).toISOString(),
-            // "OfficialRating": "NR",
+            "DateCreated": new Date(title.updated).toISOString(),
+            "OfficialRating": "NR",
             "ChannelId": null,
-            //"CommunityRating": 6.9,
-            // "RunTimeTicks": 17999998976,
+            "CommunityRating": 6.9,
+            "RunTimeTicks": 17999998976,
             "ProductionYear": title.year,
             "IsFolder": true,
             "Type": "Series",
-            // "UserData": {
-            //   "UnplayedItemCount": 1,
-            //   "PlaybackPositionTicks": 0,
-            //   "PlayCount": 0,
-            //   "IsFavorite": false,
-            //   "Played": false,
-            //   "Key": "170551"
-            // },
             "Status": title.status.code === AnilibriaTitleStatusCode.IN_PROGRESS ? 'Continuing' : 'Ended',
             "AirDays": [],
             "PrimaryImageAspectRatio": 0.68,
@@ -254,17 +256,24 @@ export class JellyFinAdapter {
             },
             "LocationType": "FileSystem",
             "MediaType": "Unknown",
-            // "EndDate": "2011-12-13T00:00:00.0000000Z"
+            "EndDate": "2011-12-13T00:00:00.0000000Z",
+            "Path": '/' + mockID.toString() + '/'
         };      
     }
 
     getSeason(mockID: ContentID, name: string): BaseItemDto {
+      // DateCreated,Etag,Genres,MediaSources,AlternateMediaSources,Overview,ParentId,Path,People,ProviderIds,SortName,RecursiveItemCount,ChildCount
       return {
           "Name": name,
           "ServerId": this.serverId,
           "Id": mockID.toString(),
+          "Etag": mockID.toString(),
+          "Genres": [],
+          "MediaSources": [],
+          "Overview": name,
           "CanDelete": false,
           "PremiereDate": "2010-06-16T00:00:00.0000000Z",
+          "DateCreated": "2010-06-16T00:00:00.0000000Z",
           "ChannelId": null,
           "ProductionYear": 2010,
           "IndexNumber": 1,
@@ -285,6 +294,7 @@ export class JellyFinAdapter {
           "ChildCount": 2,
           "SeriesName": name,
           "SeriesId": mockID.toString(),
+          "ParentId": mockID.toString(1),
           "PrimaryImageAspectRatio": 1,
           "SeriesPrimaryImageTag": mockID.toString(),
           "ImageTags": {
@@ -292,7 +302,8 @@ export class JellyFinAdapter {
           },
           "BackdropImageTags": [],
           "LocationType": "FileSystem",
-          "MediaType": "Unknown"
+          "MediaType": "Unknown",
+          "Path": '/' + mockID.toString() + '/',
         }
   }
 
@@ -308,19 +319,12 @@ export class JellyFinAdapter {
         "Container": "mov,mp4,m4a,3gp,3g2,mj2",
         "PremiereDate": new Date(episode.created_timestamp).toISOString(),
         "MediaSources": [
-          // ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
+           ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
           ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, false))
         ],
         "Path": "/media/" + contentID.toString() + "",
         "ChannelId": null,
-        // "Overview": "An object from space spreads radiation over North America. Fearing terrorism, U.S. Homeland Security agents are dispatched to investigate and contain the damage. What they discover is a forgotten relic of the old Soviet space program, whose return to Earth will have implications for the entire world.",
-        // "Genres": [
-        //   "Drama",
-        //   "Sci-Fi"
-        // ],
         "CommunityRating": 7,
-        //"RunTimeTicks": 3240349952,
-        //"ProductionYear": 2010,
         "IndexNumber": Number(contentID.episodeID),
         "ParentIndexNumber": Number(contentID.seasonID),
         "IsFolder": false,
@@ -332,15 +336,6 @@ export class JellyFinAdapter {
         "ParentBackdropImageTags": [
           contentID.toString()
         ],
-        // "UserData": {
-        //   "PlayedPercentage": 36.63199832065546,
-        //   "PlaybackPositionTicks": 1187004940,
-        //   "PlayCount": 18,
-        //   "IsFavorite": true,
-        //   "LastPlayedDate": "2024-04-20T18:15:27.1362519Z",
-        //   "Played": false,
-        //   "Key": "170551001001"
-        // },
         "SeriesName": title.names.ru,
         "SeriesId": contentID.toString(1),
         "SeasonId": contentID.toString(2),

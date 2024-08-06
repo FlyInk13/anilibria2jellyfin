@@ -57,7 +57,7 @@ app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
             const episode = title.player.list[contentID.episodeID!];            
             res.json(jellyFinAdapter.getEpisode(contentID, title, episode));
         });
-    } 
+    }
     
     if (contentID.serialID && /^\d+$/.test(contentID.serialID)) {
         return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
@@ -136,6 +136,34 @@ const redirectM3U8 = (origin: string, playlist: string): string => {
     });
 }
 
+// infuse
+app.get('/stable/Videos/:itemId/stream', (req, res) => {
+    const [qualityRaw, playlistType] = String(req.query.MediaSourceId ?? '').split('@');
+    const qualityKey = qualityRaw as AnilibriaPlayerQuality; 
+    const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
+
+    if (contentID.serialID && contentID.episodeID) {
+        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
+            const episode = title.player.list[contentID.episodeID!];            
+            const url = 'https://' + title.player.host + episode.hls[qualityKey];
+
+            const urlRes = await fetch(url);
+            const arrayBuffer = await urlRes.arrayBuffer();
+            const origin = 'http://' + req.get('host')!;
+            const decoder = new TextDecoder();
+            let playlist = decoder.decode(arrayBuffer);
+            
+            if (playlistType === 'proxy') {
+                playlist = redirectM3U8(origin, playlist);
+            }
+
+            res.send(playlist);
+            res.end();
+        });
+    }
+});
+
+// vidhub
 app.get('/stable/videos/:itemId/stream.m3u8', (req, res) => {
     const [qualityRaw, playlistType] = String(req.query.MediaSourceId ?? '').split('@');
     const qualityKey = qualityRaw as AnilibriaPlayerQuality; 
