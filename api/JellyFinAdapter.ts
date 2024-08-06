@@ -149,15 +149,15 @@ export class JellyFinAdapter {
 
 
 
-    getMediaSource(mockID: ContentID, episode: AnilibriaPlayerItem, qualityKey: AnilibriaPlayerQuality): MediaSourceInfo {
+    getMediaSource(mockID: ContentID, episode: AnilibriaPlayerItem, qualityKey: AnilibriaPlayerQuality, proxy: boolean): MediaSourceInfo {
       return  {
         "Protocol": "File",
-        "Id": qualityKey,
+        "Id": qualityKey + '@' + (proxy ? 'proxy' : 'anilibria'),
         "Path": "/media/" + mockID.toString() + ".m3u8",
         "Type": "Default",
         "Container": "m3u8",
         "Size": 47552616,
-        "Name": qualityKey,
+        "Name": qualityKey + ' (' + (proxy ? 'proxy' : 'anilibria') + ')',
         "IsRemote": false,
         "ETag": "f2c9f12aa39e9312fe369824d371a64f",
         "RunTimeTicks": 3240349952,
@@ -297,6 +297,7 @@ export class JellyFinAdapter {
   }
 
   getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem): BaseItemDto {
+    const sources = Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]);
     return {
         "Name":  String(episode.name || ('Эпизод ' + episode.episode) || '?'),
         "ServerId": this.serverId,
@@ -306,9 +307,10 @@ export class JellyFinAdapter {
         "HasSubtitles": true,
         "Container": "mov,mp4,m4a,3gp,3g2,mj2",
         "PremiereDate": new Date(episode.created_timestamp).toISOString(),
-        "MediaSources": Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]).map((qualityKey: string) => {
-          return this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality);
-        }),
+        "MediaSources": [
+          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
+          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, false))
+        ],
         "Path": "/media/" + contentID.toString() + "",
         "ChannelId": null,
         // "Overview": "An object from space spreads radiation over North America. Fearing terrorism, U.S. Homeland Security agents are dispatched to investigate and contain the damage. What they discover is a forgotten relic of the old Soviet space program, whose return to Earth will have implications for the entire world.",

@@ -49,7 +49,7 @@ app.get('/stable/Users/:userId/Items', (req, res, next) => {
     return jellyFinAdapter.getEmptyList();
 });
 
-app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {    
+app.get('/stable/Users/:userId/Items/:itemId', (req, res, next) => {
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID && contentID.episodeID) {
@@ -129,18 +129,64 @@ app.get('/stable/Shows/:itemId/Episodes', (req, res, next) => {
 });
 
 // Get stream content
+const redirectM3U8 = (origin: string, playlist: string): string => {
+    return playlist.replace(/^(https?):\/\/(.+?)(\/.+)\.(.+)$/gm, (url) => {
+        const [_, protocol, host, path, type] = url.match(/^(https?):\/\/(.+?)\/(.+)\.(.+)$/)!;
+        return origin + '/content/' + protocol + '/' + host + '/' + type + '?path=' + encodeURIComponent(btoa(path));
+    });
+}
+
 app.get('/stable/videos/:itemId/stream.m3u8', (req, res) => {
-    const qualityKey = req.query.MediaSourceId as AnilibriaPlayerQuality; 
+    const [qualityRaw, playlistType] = String(req.query.MediaSourceId ?? '').split('@');
+    const qualityKey = qualityRaw as AnilibriaPlayerQuality; 
     const contentID: ContentID = ContentID.parse(req.params.itemId?.toString() ?? '');
 
     if (contentID.serialID && contentID.episodeID) {
-        return anilibriaApi.title(contentID.serialID).then((title: AnilibriaTitle) => {
+        return anilibriaApi.title(contentID.serialID).then(async (title: AnilibriaTitle) => {
             const episode = title.player.list[contentID.episodeID!];            
-            const url = episode.hls[qualityKey];
-            proxy(req.method, title.player.host, url, res);
+            const url = 'https://' + title.player.host + episode.hls[qualityKey];
+
+            const urlRes = await fetch(url);
+            const arrayBuffer = await urlRes.arrayBuffer();
+            const origin = 'http://' + req.get('host')!;
+            const decoder = new TextDecoder();
+            let playlist = decoder.decode(arrayBuffer);
+            
+            if (playlistType === 'proxy') {
+                playlist = redirectM3U8(origin, playlist);
+            }
+
+            res.send(playlist);
+            res.end();
         });
     }
 });
+
+app.get('/content/:protocol/:host/:type', async (req, res, next) => {
+    const protocol: string = req.params.protocol;
+    const host: string = req.params.host;
+    const type: string = req.params.type;
+    const path: string = req.query.path ? atob(String(req.query.path)) : '';
+    const url = protocol + '://' + host + '/' + path + '.' + type;
+
+    if (type === 'ts') {
+        const urlRes = await fetch(url);
+        const arrayBuffer = await urlRes.arrayBuffer();
+        const nodeBuffer = Buffer.from(arrayBuffer);
+        return res.send(nodeBuffer);
+    } else if (type === 'm3u8') {
+        const urlRes = await fetch(url);
+        const arrayBuffer = await urlRes.arrayBuffer();
+        const origin = 'http://' + req.get('host')!;
+        const decoder = new TextDecoder();
+        const playlist = decoder.decode(arrayBuffer);
+        const str = redirectM3U8(origin, playlist);
+        return res.send(str);
+    }
+
+    next();
+})
+
 
 // Get images
 app.get('/stable/Items/:itemId/Images/Primary', (req, res) => {
