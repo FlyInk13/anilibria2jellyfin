@@ -8,9 +8,18 @@
 ```bash
 bun install
 ```
-3. Запуск
+3. Создаем свой .env на примере example.env
+4. Запуск
 ```bash
 bun run index.ts
+```
+
+## Запуск через docker-compose
+1. Разворачиваем traefik
+2. Создаем свой .env на примере example.env
+3. Запускаем контейнер
+```bash
+docker-compose up --build
 ```
 
 ## Подключение плеера

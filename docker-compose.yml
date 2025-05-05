@@ -1,0 +1,25 @@
+services:
+  a2j:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: a2j
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - ./data/:/app/data
+    env_file:
+      - example.env
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.a2j.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.a2j.entrypoints=websecure"
+      - "traefik.http.routers.a2j.tls=true"
+      - "traefik.http.routers.a2j.tls.certresolver=myresolver"
+      - "traefik.http.services.a2j.loadbalancer.server.port=${PORT}"
+
+networks:
+  proxy:
+    external: true

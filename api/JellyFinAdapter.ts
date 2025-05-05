@@ -1,4 +1,3 @@
-import { AnilibriaTitleStatusCode, type AnilibriaPlayerItem, type AnilibriaPlayerQuality, type AnilibriaTitle } from "./Anilibria";
 import { ContentID } from "./ContentID";
 import type { AuthenticationResult } from "@jellyfin/sdk/lib/generated-client/models/authentication-result";
 import type { UserDto } from "@jellyfin/sdk/lib/generated-client/models/user-dto";
@@ -8,7 +7,7 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models/base
 import type { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
 import type { MediaStream } from "@jellyfin/sdk/lib/generated-client/models/media-stream";
 import type { SeriesInfo } from "@jellyfin/sdk/lib/generated-client/models/series-info";
-import type { SeriesStatus } from "@jellyfin/sdk/lib/generated-client/models/series-status";
+import type { AnilibriaPlayerItem, AnilibriaPlayerQuality, AnilibriaTitle, AnilibriaTitleStatusCode } from "./Anilibria.types";
 
 export class JellyFinAdapter {
     public userName = 'demo';
@@ -37,61 +36,61 @@ export class JellyFinAdapter {
             "LastLoginDate": "2024-02-11T00:13:54.1200198Z",
             "LastActivityDate": "2024-02-11T00:13:54.1200198Z",
             "Configuration": {
-              "AudioLanguagePreference": "",
-              "PlayDefaultAudioTrack": true,
-              "SubtitleLanguagePreference": "dut",
-              "DisplayMissingEpisodes": true,
-              "GroupedFolders": [],
-              "SubtitleMode": "Always",
-              "DisplayCollectionsView": false,
-              "EnableLocalPassword": true,
-              "OrderedViews": [],
-              "LatestItemsExcludes": [],
-              "MyMediaExcludes": [],
-              "HidePlayedInLatest": false,
-              "RememberAudioSelections": true,
-              "RememberSubtitleSelections": true,
-              "EnableNextEpisodeAutoPlay": true
+                "AudioLanguagePreference": "",
+                "PlayDefaultAudioTrack": true,
+                "SubtitleLanguagePreference": "dut",
+                "DisplayMissingEpisodes": true,
+                "GroupedFolders": [],
+                "SubtitleMode": "Always",
+                "DisplayCollectionsView": false,
+                "EnableLocalPassword": true,
+                "OrderedViews": [],
+                "LatestItemsExcludes": [],
+                "MyMediaExcludes": [],
+                "HidePlayedInLatest": false,
+                "RememberAudioSelections": true,
+                "RememberSubtitleSelections": true,
+                "EnableNextEpisodeAutoPlay": true
             },
             "Policy": {
-              "IsAdministrator": false,
-              "IsHidden": true,
-              "IsDisabled": false,
-              "BlockedTags": [],
-              "EnableUserPreferenceAccess": true,
-              "AccessSchedules": [],
-              "BlockUnratedItems": [],
-              "EnableRemoteControlOfOtherUsers": false,
-              "EnableSharedDeviceControl": false,
-              "EnableRemoteAccess": true,
-              "EnableLiveTvManagement": false,
-              "EnableLiveTvAccess": true,
-              "EnableMediaPlayback": true,
-              "EnableAudioPlaybackTranscoding": true,
-              "EnableVideoPlaybackTranscoding": true,
-              "EnablePlaybackRemuxing": true,
-              "ForceRemoteSourceTranscoding": false,
-              "EnableContentDeletion": false,
-              "EnableContentDeletionFromFolders": [],
-              "EnableContentDownloading": true,
-              "EnableSyncTranscoding": true,
-              "EnableMediaConversion": true,
-              "EnabledDevices": [],
-              "EnableAllDevices": true,
-              "EnabledChannels": [],
-              "EnableAllChannels": true,
-              "EnabledFolders": [],
-              "EnableAllFolders": true,
-              "InvalidLoginAttemptCount": 0,
-              "LoginAttemptsBeforeLockout": -1,
-              "MaxActiveSessions": 0,
-              "EnablePublicSharing": false,
-              "BlockedMediaFolders": [],
-              "BlockedChannels": [],
-              "RemoteClientBitrateLimit": 0,
-              "AuthenticationProviderId": "Jellyfin.Server.Implementations.Users.DefaultAuthenticationProvider",
-              "PasswordResetProviderId": "Jellyfin.Server.Implementations.Users.DefaultPasswordResetProvider",
-              "SyncPlayAccess": "CreateAndJoinGroups"
+                "IsAdministrator": false,
+                "IsHidden": true,
+                "IsDisabled": false,
+                "BlockedTags": [],
+                "EnableUserPreferenceAccess": true,
+                "AccessSchedules": [],
+                "BlockUnratedItems": [],
+                "EnableRemoteControlOfOtherUsers": false,
+                "EnableSharedDeviceControl": false,
+                "EnableRemoteAccess": true,
+                "EnableLiveTvManagement": false,
+                "EnableLiveTvAccess": true,
+                "EnableMediaPlayback": true,
+                "EnableAudioPlaybackTranscoding": true,
+                "EnableVideoPlaybackTranscoding": true,
+                "EnablePlaybackRemuxing": true,
+                "ForceRemoteSourceTranscoding": false,
+                "EnableContentDeletion": false,
+                "EnableContentDeletionFromFolders": [],
+                "EnableContentDownloading": true,
+                "EnableSyncTranscoding": true,
+                "EnableMediaConversion": true,
+                "EnabledDevices": [],
+                "EnableAllDevices": true,
+                "EnabledChannels": [],
+                "EnableAllChannels": true,
+                "EnabledFolders": [],
+                "EnableAllFolders": true,
+                "InvalidLoginAttemptCount": 0,
+                "LoginAttemptsBeforeLockout": -1,
+                "MaxActiveSessions": 0,
+                "EnablePublicSharing": false,
+                "BlockedMediaFolders": [],
+                "BlockedChannels": [],
+                "RemoteClientBitrateLimit": 0,
+                "AuthenticationProviderId": "Jellyfin.Server.Implementations.Users.DefaultAuthenticationProvider",
+                "PasswordResetProviderId": "Jellyfin.Server.Implementations.Users.DefaultPasswordResetProvider",
+                "SyncPlayAccess": "CreateAndJoinGroups"
             }
         };
     }
@@ -99,19 +98,19 @@ export class JellyFinAdapter {
     getSessionInfo(): SessionInfo {
         return {
             "PlayState": {
-              "CanSeek": false,
-              "IsPaused": false,
-              "IsMuted": false,
-              "RepeatMode": "RepeatNone"
+                "CanSeek": false,
+                "IsPaused": false,
+                "IsMuted": false,
+                "RepeatMode": "RepeatNone"
             },
             "AdditionalUsers": [],
             "Capabilities": {
-              "PlayableMediaTypes": [],
-              "SupportedCommands": [],
-              "SupportsMediaControl": false,
-              "SupportsContentUploading": false,
-              "SupportsPersistentIdentifier": true,
-              "SupportsSync": false
+                "PlayableMediaTypes": [],
+                "SupportedCommands": [],
+                "SupportsMediaControl": false,
+                "SupportsContentUploading": false,
+                "SupportsPersistentIdentifier": true,
+                "SupportsSync": false
             },
             "RemoteEndPoint": "127.0.0.1",
             "PlayableMediaTypes": [],
@@ -150,80 +149,80 @@ export class JellyFinAdapter {
 
 
     getMediaSource(mockID: ContentID, episode: AnilibriaPlayerItem, qualityKey: AnilibriaPlayerQuality, proxy: boolean): MediaSourceInfo {
-      return  {
-        "Protocol": "File",
-        "Id": qualityKey + '@' + (proxy ? 'proxy' : 'anilibria'),
-        "Path": "/media/" + mockID.toString() + ".m3u8",
-        "Type": "Default",
-        "Container": "m3u8",
-        "Size": 47552616,
-        "Name": qualityKey + ' (' + (proxy ? 'proxy' : 'anilibria') + ')',
-        "IsRemote": false,
-        "ETag": "f2c9f12aa39e9312fe369824d371a64f",
-        "RunTimeTicks": 3240349952,
-        "ReadAtNativeFramerate": false,
-        "IgnoreDts": false,
-        "IgnoreIndex": false,
-        "GenPtsInput": false,
-        "SupportsTranscoding": true,
-        "SupportsDirectStream": true,
-        "SupportsDirectPlay": true,
-        "IsInfiniteStream": false,
-        "RequiresOpening": false,
-        "RequiresClosing": false,
-        "RequiresLooping": false,
-        "SupportsProbing": true,
-        "VideoType": "VideoFile",
-        "MediaStreams": [this.getMediaStreams(mockID, episode)],
-        "MediaAttachments": [],
-        "Formats": [],
-        "Bitrate": 1174011,
-        "RequiredHttpHeaders": {},
-        "TranscodingSubProtocol": "http",
-        "DefaultAudioStreamIndex": 1,
-        "DefaultSubtitleStreamIndex": 3
-      }
+        return  {
+            "Protocol": "File",
+            "Id": qualityKey + '@' + (proxy ? 'proxy' : 'anilibria'),
+            "Path": "/media/" + mockID.toString() + ".m3u8",
+            "Type": "Default",
+            "Container": "m3u8",
+            "Size": 47552616,
+            "Name": qualityKey + ' (' + (proxy ? 'proxy' : 'anilibria') + ')',
+            "IsRemote": false,
+            "ETag": "f2c9f12aa39e9312fe369824d371a64f",
+            "RunTimeTicks": 3240349952,
+            "ReadAtNativeFramerate": false,
+            "IgnoreDts": false,
+            "IgnoreIndex": false,
+            "GenPtsInput": false,
+            "SupportsTranscoding": true,
+            "SupportsDirectStream": true,
+            "SupportsDirectPlay": true,
+            "IsInfiniteStream": false,
+            "RequiresOpening": false,
+            "RequiresClosing": false,
+            "RequiresLooping": false,
+            "SupportsProbing": true,
+            "VideoType": "VideoFile",
+            "MediaStreams": [this.getMediaStreams(mockID, episode)],
+            "MediaAttachments": [],
+            "Formats": [],
+            "Bitrate": 1174011,
+            "RequiredHttpHeaders": {},
+            "TranscodingSubProtocol": "http",
+            "DefaultAudioStreamIndex": 1,
+            "DefaultSubtitleStreamIndex": 3
+        }
     }
 
     getMediaStreams(mockID: ContentID, episode: AnilibriaPlayerItem): MediaStream {
         return {
-          "Codec": "h264",
-          "CodecTag": "avc1",
-          "Language": "und",
-          "TimeBase": "1/45000",
-          "CodecTimeBase": "1877/90000",
-          "VideoRange": "SDR",
-          "VideoRangeType": "SDR",
-          "AudioSpatialFormat": "None",
-          "DisplayTitle": "720p H264 SDR",
-          "NalLengthSize": "4",
-          "IsInterlaced": false,
-          "IsAVC": true,
-          "BitRate": 1042260,
-          "BitDepth": 8,
-          "RefFrames": 1,
-          "IsDefault": true,
-          "IsForced": false,
-          "IsHearingImpaired": false,
-          "Height": 720,
-          "Width": 1280,
-          "AverageFrameRate": 23.974428,
-          "RealFrameRate": 23.974428,
-          "Profile": "High",
-          "Type": "Video",
-          "AspectRatio": "16:9",
-          "Index": 0,
-          "IsExternal": false,
-          "IsTextSubtitleStream": false,
-          "SupportsExternalStream": false,
-          "PixelFormat": "yuv420p",
-          "Level": 31
+            "Codec": "h264",
+            "CodecTag": "avc1",
+            "Language": "und",
+            "TimeBase": "1/45000",
+            "CodecTimeBase": "1877/90000",
+            "VideoRange": "SDR",
+            "VideoRangeType": "SDR",
+            "AudioSpatialFormat": "None",
+            "DisplayTitle": "720p H264 SDR",
+            "NalLengthSize": "4",
+            "IsInterlaced": false,
+            "IsAVC": true,
+            "BitRate": 1042260,
+            "BitDepth": 8,
+            "RefFrames": 1,
+            "IsDefault": true,
+            "IsForced": false,
+            "IsHearingImpaired": false,
+            "Height": 720,
+            "Width": 1280,
+            "AverageFrameRate": 23.974428,
+            "RealFrameRate": 23.974428,
+            "Profile": "High",
+            "Type": "Video",
+            "AspectRatio": "16:9",
+            "Index": 0,
+            "IsExternal": false,
+            "IsTextSubtitleStream": false,
+            "SupportsExternalStream": false,
+            "PixelFormat": "yuv420p",
+            "Level": 31
         };
     }
 
 
 
-    getSerial(mockID: ContentID, title: AnilibriaTitle): BaseItemDto & SeriesInfo {
+    getSerial(mockID: ContentID, title: AnilibriaTitle, IsFavorite = false): BaseItemDto & SeriesInfo {
         return {
             "Name": title.names.ru,
             "SortName": title.names.ru,
@@ -241,124 +240,131 @@ export class JellyFinAdapter {
             "CanDelete": false,
             "PremiereDate": new Date(title.updated).toISOString(),
             "DateCreated": new Date(title.updated).toISOString(),
-            "OfficialRating": "NR",
+            "OfficialRating":  title.status.string, // "NR",
             "ChannelId": null,
-            "CommunityRating": 6.9,
-            "RunTimeTicks": 17999998976,
+            "RunTimeTicks": 0,
             "ProductionYear": title.year,
             "IsFolder": true,
             "Type": "Series",
             "Status": title.status.code === AnilibriaTitleStatusCode.IN_PROGRESS ? 'Continuing' : 'Ended',
             "AirDays": [],
-            "PrimaryImageAspectRatio": 0.68,
+            "PrimaryImageAspectRatio": 0.7,
             "ImageTags": {
-              "Primary": mockID.toString(),
+                "Primary": mockID.toString(),
+            },
+            "UserData": {
+                "UnplayedItemCount": 0,
+                "PlaybackPositionTicks": 0,
+                "PlayCount": 0,
+                "IsFavorite": IsFavorite,
+                "Played": false,
+                "Key": ""
             },
             "LocationType": "FileSystem",
             "MediaType": "Unknown",
             "EndDate": "2011-12-13T00:00:00.0000000Z",
             "Path": '/' + mockID.toString() + '/'
-        };      
+        };
     }
 
     getSeason(mockID: ContentID, name: string): BaseItemDto {
-      // DateCreated,Etag,Genres,MediaSources,AlternateMediaSources,Overview,ParentId,Path,People,ProviderIds,SortName,RecursiveItemCount,ChildCount
-      return {
-          "Name": name,
-          "ServerId": this.serverId,
-          "Id": mockID.toString(),
-          "Etag": mockID.toString(),
-          "Genres": [],
-          "MediaSources": [],
-          "Overview": name,
-          "CanDelete": false,
-          "PremiereDate": "2010-06-16T00:00:00.0000000Z",
-          "DateCreated": "2010-06-16T00:00:00.0000000Z",
-          "ChannelId": null,
-          "ProductionYear": 2010,
-          "IndexNumber": 1,
-          "IsFolder": true,
-          "Type": "Season",
-          "ParentBackdropItemId": "ParentBackdropItemId",
-          "ParentBackdropImageTags": [
-            "ParentBackdropImageTags"
-          ],
-          "UserData": {
-            "UnplayedItemCount": 1,
-            "PlaybackPositionTicks": 0,
-            "PlayCount": 0,
-            "IsFavorite": false,
-            "Played": false,
-            "Key": "170551001"
-          },
-          "ChildCount": 2,
-          "SeriesName": name,
-          "SeriesId": mockID.toString(),
-          "ParentId": mockID.toString(1),
-          "PrimaryImageAspectRatio": 1,
-          "SeriesPrimaryImageTag": mockID.toString(),
-          "ImageTags": {
-            "Primary": mockID.toString(),
-          },
-          "BackdropImageTags": [],
-          "LocationType": "FileSystem",
-          "MediaType": "Unknown",
-          "Path": '/' + mockID.toString() + '/',
+        // DateCreated,Etag,Genres,MediaSources,AlternateMediaSources,Overview,ParentId,Path,People,ProviderIds,SortName,RecursiveItemCount,ChildCount
+        return {
+            "Name": name,
+            "ServerId": this.serverId,
+            "Id": mockID.toString(),
+            "Etag": mockID.toString(),
+            "Genres": [],
+            "MediaSources": [],
+            "Overview": name,
+            "CanDelete": false,
+            "PremiereDate": "2010-06-16T00:00:00.0000000Z",
+            "DateCreated": "2010-06-16T00:00:00.0000000Z",
+            "ChannelId": null,
+            "ProductionYear": 2010,
+            "IndexNumber": 1,
+            "IsFolder": true,
+            "Type": "Season",
+            "ParentBackdropItemId": "ParentBackdropItemId",
+            "ParentBackdropImageTags": [
+                "ParentBackdropImageTags"
+            ],
+            "UserData": {
+                "UnplayedItemCount": 1,
+                "PlaybackPositionTicks": 0,
+                "PlayCount": 0,
+                "IsFavorite": false,
+                "Played": false,
+                "Key": "170551001"
+            },
+            "ChildCount": 2,
+            "SeriesName": name,
+            "SeriesId": mockID.toString(),
+            "ParentId": mockID.toString(1),
+            "PrimaryImageAspectRatio": 1,
+            "SeriesPrimaryImageTag": mockID.toString(),
+            "ImageTags": {
+                "Primary": mockID.toString(),
+            },
+            "BackdropImageTags": [],
+            "LocationType": "FileSystem",
+            "MediaType": "Unknown",
+            "Path": '/' + mockID.toString() + '/',
         }
-  }
+    }
 
-  getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem): BaseItemDto {
-    const sources = Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]);
-    return {
-        "Name":  String(episode.name || ('Эпизод ' + episode.episode) || '?'),
-        "ServerId": this.serverId,
-        "Id": contentID.toString(),
-        "DateCreated": new Date(episode.created_timestamp).toISOString(),
-        "CanDelete": false,
-        "HasSubtitles": true,
-        "Container": "mov,mp4,m4a,3gp,3g2,mj2",
-        "PremiereDate": new Date(episode.created_timestamp).toISOString(),
-        "MediaSources": [
-          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
-          ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, false))
-        ],
-        "Path": "/media/" + contentID.toString() + "",
-        "ChannelId": null,
-        "CommunityRating": 7,
-        "IndexNumber": Number(contentID.episodeID),
-        "ParentIndexNumber": Number(contentID.seasonID),
-        "IsFolder": false,
-        "ParentId": contentID.toString(2),
-        "Type": "Episode",
-        "People": [],
-        "GenreItems": [],
-        "ParentBackdropItemId": contentID.toString(),
-        "ParentBackdropImageTags": [
-          contentID.toString()
-        ],
-        "SeriesName": title.names.ru,
-        "SeriesId": contentID.toString(1),
-        "SeasonId": contentID.toString(2),
-        "PrimaryImageAspectRatio": 1.7777777777777777,
-        "SeriesPrimaryImageTag": contentID.toString(),
-        "SeasonName": "Season 1",
-        "MediaStreams": [this.getMediaStreams(contentID, episode)],
-        "VideoType": "VideoFile",
-        "ImageTags": {
-          "Primary": contentID.toString()
-        },
-        "BackdropImageTags": [],
-        "LocationType": "FileSystem",
-        "MediaType": "Video"
-    };
-}
+    getEpisode(contentID: ContentID, title: AnilibriaTitle, episode: AnilibriaPlayerItem): BaseItemDto {
+        const sources = Object.keys(episode.hls).filter((qualityKey: string) => episode.hls[qualityKey as AnilibriaPlayerQuality]);
+        return {
+            "Name":  String(episode.name || ('Эпизод ' + episode.episode) || '?'),
+            "ServerId": this.serverId,
+            "Id": contentID.toString(),
+            "DateCreated": new Date(episode.created_timestamp).toISOString(),
+            "CanDelete": false,
+            "HasSubtitles": true,
+            "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+            "PremiereDate": new Date(episode.created_timestamp).toISOString(),
+            "MediaSources": [
+                ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, true)),
+                ...sources.map((qualityKey: string) => this.getMediaSource(contentID, episode, qualityKey as AnilibriaPlayerQuality, false))
+            ],
+            "Path": "/media/" + contentID.toString() + "",
+            "ChannelId": null,
+            "CommunityRating": 7,
+            "IndexNumber": Number(contentID.episodeID),
+            "ParentIndexNumber": Number(contentID.seasonID),
+            "IsFolder": false,
+            "ParentId": contentID.toString(2),
+            "Type": "Episode",
+            "People": [],
+            "GenreItems": [],
+            "ParentBackdropItemId": contentID.toString(),
+            "ParentBackdropImageTags": [
+                contentID.toString()
+            ],
+            "SeriesName": title.names.ru,
+            "SeriesId": contentID.toString(1),
+            "SeasonId": contentID.toString(2),
+            "PrimaryImageAspectRatio": 1.7777777777777777,
+            "SeriesPrimaryImageTag": contentID.toString(),
+            "SeasonName": "Season 1",
+            "MediaStreams": [this.getMediaStreams(contentID, episode)],
+            "VideoType": "VideoFile",
+            "ImageTags": {
+                "Primary": contentID.toString()
+            },
+            "BackdropImageTags": [],
+            "LocationType": "FileSystem",
+            "MediaType": "Video"
+        };
+    }
 
     getList<I, R>(list: I[], itemBuilder: (item: I) => R) {
-      return {
-        "Items": list.map(itemBuilder),
-        "TotalRecordCount": list.length,
-        "StartIndex": 0
-      }
+        return {
+            "Items": list.map(itemBuilder),
+            "TotalRecordCount": list.length,
+            "StartIndex": 0
+        }
     }
 
     getCollectionFolder(folderId: ContentID, name: string): BaseItemDto {
@@ -388,11 +394,11 @@ export class JellyFinAdapter {
             "GenreItems": [],
             "LocalTrailerCount": 0,
             "UserData": {
-              "PlaybackPositionTicks": 0,
-              "PlayCount": 0,
-              "IsFavorite": false,
-              "Played": false,
-              "Key": "767bffe4-f11c-93ef-34b8-05451a696a4e"
+                "PlaybackPositionTicks": 0,
+                "PlayCount": 0,
+                "IsFavorite": false,
+                "Played": false,
+                "Key": "767bffe4-f11c-93ef-34b8-05451a696a4e"
             },
             "ChildCount": 3,
             "SpecialFeatureCount": 0,
@@ -401,23 +407,13 @@ export class JellyFinAdapter {
             "PrimaryImageAspectRatio": 1.7777777777777777,
             "CollectionType": "tvshows",
             "ImageTags": {
-              "Primary": "getTVShows-ImageTags-Primary"
+                "Primary": "getTVShows-ImageTags-Primary"
             },
             "BackdropImageTags": [],
             "LocationType": "FileSystem",
             "MediaType": "Unknown",
             "LockedFields": [],
             "LockData": false
-        };
-    }
-
-    getRoot(): BaseItemDtoQueryResult {
-        return {
-            "Items": [
-                this.getCollectionFolder(ContentID.root(), 'Обновления')
-            ],
-            "TotalRecordCount": 1,
-            "StartIndex": 0
         };
     }
 
