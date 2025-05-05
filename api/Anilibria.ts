@@ -1,6 +1,13 @@
 import type { AnilibriaTitle, AnilibriaList } from "./Anilibria.types";
 import type { ContentID } from "./ContentID";
 
+export enum AnilibriaTitleStatusCode {
+    IN_PROGRESS = 1, // 1 – В работе
+    SEASON_DONE = 2, // 2 – Завершен
+    HIDDEN      = 3, // 3 – Скрыт
+    TITLE_DONE  = 4, // 4 – Неонгоинг
+}
+
 // https://github.com/anilibria/docs/blob/master/api_v3.md#-franchiselist
 export class Anilibria {
     public apiHost: string;

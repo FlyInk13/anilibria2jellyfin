@@ -7,7 +7,8 @@ import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models/base
 import type { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
 import type { MediaStream } from "@jellyfin/sdk/lib/generated-client/models/media-stream";
 import type { SeriesInfo } from "@jellyfin/sdk/lib/generated-client/models/series-info";
-import type { AnilibriaPlayerItem, AnilibriaPlayerQuality, AnilibriaTitle, AnilibriaTitleStatusCode } from "./Anilibria.types";
+import type { AnilibriaPlayerItem, AnilibriaPlayerQuality, AnilibriaTitle } from "./Anilibria.types";
+import { AnilibriaTitleStatusCode } from "./Anilibria";
 
 export class JellyFinAdapter {
     public userName = 'demo';
